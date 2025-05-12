@@ -1,19 +1,13 @@
-"use client";  // Ensure this is a client-side component
-
-import React, { ReactNode } from 'react';
+"use client";
 import { SessionProvider } from "next-auth/react";
+import { ReactNode } from "react";
 
-// Define the type for children prop
-type ProviderProps = {
+interface ProviderProps {
   children: ReactNode;
-};
+}
 
 const Provider = ({ children }: ProviderProps) => {
-  return (
-    <SessionProvider>
-      {children}
-    </SessionProvider>
-  );
+  return <SessionProvider>{children}</SessionProvider>;
 };
 
 export default Provider;
