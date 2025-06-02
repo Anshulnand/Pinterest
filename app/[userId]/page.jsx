@@ -2,66 +2,64 @@
 import React, { useEffect, useState } from 'react';
 import app from '../Shared/firebaseConfig';
 import UserInfo from '../../components/UserInfo';
-import { collection, getDocs, getDoc, doc, getFirestore, query, where } from 'firebase/firestore';
 import PinList from '../../components/Pins/PinList';
+import { collection, getDocs, getDoc, doc, getFirestore, query, where } from 'firebase/firestore';
 
-function Profile({ params }) {
+export default function Profile({ params }) {
+  // Unwrap params synchronously here with React.use()
+  const unwrappedParams = React.use(params);
+  // Now safely access userId param
+  const userId = unwrappedParams?.userId;
+  // Decode email from URL param (replace %40 with @)
+  const email = userId?.replace('%40', '@');
+
   const db = getFirestore(app);
-  const [userInfo, setUserInfo] = useState();
+  const [userInfo, setUserInfo] = useState(null);
   const [listOfPins, setListOfPins] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      // Unwrap `params` with `React.use()` to ensure compatibility with future Next.js versions
-      const userId = await params; // Unwrap the params Promise
-      const email = userId?.userId?.replace('%40', '@');
-      if (email) {
-        getUserInfo(email);
+    if (!email) return;
+
+    const getUserInfo = async () => {
+      const docRef = doc(db, "user", email);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        setUserInfo(docSnap.data());
+      } else {
+        console.log("No such document!");
       }
     };
 
-    fetchData();
-  }, [params]);
-
-  const getUserInfo = async (email) => {
-    const docRef = doc(db, "user", email);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      setUserInfo(docSnap.data());
-    } else {
-      console.log("No such document!");
-    }
-  };
+    getUserInfo();
+  }, [email, db]);
 
   useEffect(() => {
-    if (userInfo) {
-      getUserPins();
-    }
-  }, [userInfo]);
+    if (!userInfo) return;
 
-  const getUserPins = async () => {
-    const pinList = []; // Local array to store pin data before updating state
-    const q = query(collection(db, 'pinterest-post'), where("email", '==', userInfo.email));
-    const querySnapshot = await getDocs(q);
+    const getUserPins = async () => {
+      const q = query(collection(db, 'pinterest-post'), where("email", '==', userInfo.email));
+      const querySnapshot = await getDocs(q);
+      const pinList = [];
+      querySnapshot.forEach((doc) => {
+        pinList.push(doc.data());
+      });
+      setListOfPins(pinList);
+    };
 
-    querySnapshot.forEach((doc) => {
-      pinList.push(doc.data()); // Push to the local array
-    });
-
-    setListOfPins(pinList); // Update state with the complete list of pins
-  };
+    getUserPins();
+  }, [userInfo, db]);
 
   return (
     <div>
       {userInfo ? (
-        <div>
+        <>
           <UserInfo userInfo={userInfo} />
           <PinList listOfPins={listOfPins} />
-        </div>
-      ) : null}
+        </>
+      ) : (
+        <p>Loading user info...</p>
+      )}
     </div>
   );
 }
-
-export default Profile;
