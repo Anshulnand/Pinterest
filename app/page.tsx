@@ -9,7 +9,8 @@ import PinList from './../components/Pins/PinList'
 
 export default function Home() {
   const db = getFirestore(app);
-  const [listOfPins, setListOfPins] = useState([]);
+  const [listOfPins, setListOfPins] = useState<any[]>([]);
+  const { data: session } = useSession();
 
   useEffect(() => {
     getAllPins();
@@ -19,7 +20,8 @@ export default function Home() {
     const q = query(collection(db, 'pinterest-post'));
     const querySnapshot = await getDocs(q);
 
-    const pins = [];
+    const pins: any[] = [];  // <-- Fix: explicitly type array
+
     querySnapshot.forEach((doc) => {
       pins.push(doc.data());
     });
@@ -30,6 +32,19 @@ export default function Home() {
   return (
     <>
       <div className='p-3'>
+        <div className="logo-container mb-4">
+          <Image src="/logo.png" alt="Logo" width={100} height={50} />
+        </div>
+        <div className="auth-buttons mb-4">
+          {session ? (
+            <>
+              <p>Signed in as {session.user?.email}</p>
+              <button onClick={() => signOut()}>Sign out</button>
+            </>
+          ) : (
+            <button onClick={() => signIn()}>Sign in</button>
+          )}
+        </div>
         <PinList listOfPins={listOfPins} />
       </div>
     </>
