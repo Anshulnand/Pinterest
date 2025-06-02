@@ -102,21 +102,3 @@ A full-featured Pinterest Clone built using **Next.js**, **Firebase**, **NextAut
    ```
 
 ---
-
-## 📸 Screenshots
-
-| Home Feed                     | User Profile                        | Create Post                       |
-| ----------------------------- | ----------------------------------- | --------------------------------- |
-| ![feed](screenshots/feed.png) | ![profile](screenshots/profile.png) | ![create](screenshots/create.png) |
-
----
-
-## 🧑‍💼 Author
-
-Made by [Your Name](https://github.com/your-username)
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
