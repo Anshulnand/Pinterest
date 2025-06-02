@@ -21,14 +21,14 @@ function Header() {
   },[session])
 
   const saveUserInfo=async()=>{
-    if(session?.user)
-    {
-      await setDoc(doc(db, "user", session.user.email), {
-        userName: session.user.name,
-        email: session.user.email,
-        userImage: session.user.image
-      });
-    }
+   if (session?.user && session.user.email) {
+  await setDoc(doc(db, "user", session.user.email), {
+    userName: session.user.name,
+    email: session.user.email,
+    userImage: session.user.image,
+  });
+}
+
   }
 
   const onCreateClick=()=>{
